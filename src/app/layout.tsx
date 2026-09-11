@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/constants";
+import { SITE_URL } from "@/lib/constants";
+import { getSiteSettings } from "@/lib/data";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,43 +16,50 @@ const manrope = Manrope({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: `${SITE_NAME} — Agência de Desenvolvimento Digital`,
-    template: `%s | ${SITE_NAME}`,
-  },
-  description: SITE_DESCRIPTION,
-  keywords: [
-    "Hyper Studio",
-    "agência de desenvolvimento digital",
-    "criação de sites",
-    "sistemas web",
-    "e-commerce",
-    "painéis administrativos",
-    "automações",
-    "landing pages",
-  ],
-  authors: [{ name: SITE_NAME }],
-  creator: SITE_NAME,
-  openGraph: {
-    type: "website",
-    locale: "pt_BR",
-    url: SITE_URL,
-    siteName: SITE_NAME,
-    title: `${SITE_NAME} — Agência de Desenvolvimento Digital`,
-    description: SITE_DESCRIPTION,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${SITE_NAME} — Agência de Desenvolvimento Digital`,
-    description: SITE_DESCRIPTION,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const title = settings.seoTitle;
+  const description = settings.seoDescription;
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: title,
+      template: `%s | ${settings.companyName}`,
+    },
+    description,
+    keywords: [
+      settings.companyName,
+      "agência de desenvolvimento digital",
+      "criação de sites",
+      "sistemas web",
+      "e-commerce",
+      "painéis administrativos",
+      "automações",
+      "landing pages",
+    ],
+    authors: [{ name: settings.companyName }],
+    creator: settings.companyName,
+    icons: settings.faviconUrl ? { icon: settings.faviconUrl } : undefined,
+    openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      url: SITE_URL,
+      siteName: settings.companyName,
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 export const viewport = {
   themeColor: "#050508",

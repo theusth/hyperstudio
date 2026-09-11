@@ -5,9 +5,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, MessageCircle } from "lucide-react";
 import clsx from "clsx";
 import { Container } from "@/components/ui/Container";
-import { NAV_LINKS, buildWhatsAppLink } from "@/lib/constants";
+import { NAV_LINKS } from "@/lib/constants";
 
-export function Header() {
+export function Header({
+  whatsappLink,
+  companyName,
+  logoUrl,
+}: {
+  whatsappLink: string;
+  companyName: string;
+  logoUrl: string | null;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -37,12 +45,19 @@ export function Header() {
     >
       <Container className="flex h-18 items-center justify-between py-4">
         <a href="#inicio" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-blue-500 text-sm font-bold text-white shadow-[0_0_20px_-4px_rgba(139,92,246,0.8)]">
-            H
-          </span>
-          <span className="font-display text-lg font-semibold tracking-tight text-white">
-            HYPER<span className="text-zinc-400"> STUDIO</span>
-          </span>
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt={companyName} className="h-8 w-auto" />
+          ) : (
+            <>
+              <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-blue-500 text-sm font-bold text-white shadow-[0_0_20px_-4px_rgba(139,92,246,0.8)]">
+                {companyName.charAt(0).toUpperCase()}
+              </span>
+              <span className="font-display text-lg font-semibold tracking-tight text-white">
+                <BrandName name={companyName} />
+              </span>
+            </>
+          )}
         </a>
 
         <nav className="hidden items-center gap-8 lg:flex">
@@ -59,7 +74,7 @@ export function Header() {
 
         <div className="hidden lg:block">
           <a
-            href={buildWhatsAppLink()}
+            href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_8px_24px_-8px_rgba(139,92,246,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_10px_32px_-6px_rgba(139,92,246,0.9)]"
@@ -101,7 +116,7 @@ export function Header() {
                 </a>
               ))}
               <a
-                href={buildWhatsAppLink()}
+                href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setOpen(false)}
@@ -115,5 +130,15 @@ export function Header() {
         )}
       </AnimatePresence>
     </header>
+  );
+}
+
+function BrandName({ name }: { name: string }) {
+  const [first, ...rest] = name.split(" ");
+  return (
+    <>
+      {first}
+      {rest.length > 0 && <span className="text-zinc-400"> {rest.join(" ")}</span>}
+    </>
   );
 }

@@ -5,15 +5,30 @@ import { ArrowRight, Sparkles, Gauge, Fingerprint, Circle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { GlowBackground } from "@/components/ui/GlowBackground";
-import { buildWhatsAppLink } from "@/lib/constants";
 
-const indicators = [
-  { icon: Sparkles, label: "Design premium" },
-  { icon: Gauge, label: "Alta performance" },
-  { icon: Fingerprint, label: "Experiência personalizada" },
-];
+const indicatorIcons = [Sparkles, Gauge, Fingerprint];
 
-export function Hero() {
+export function Hero({
+  badge,
+  title,
+  subtitle,
+  imageUrl,
+  primaryButtonLabel,
+  primaryButtonHref,
+  secondaryButtonLabel,
+  secondaryButtonHref,
+  highlights,
+}: {
+  badge: string;
+  title: string;
+  subtitle: string;
+  imageUrl: string | null;
+  primaryButtonLabel: string;
+  primaryButtonHref: string;
+  secondaryButtonLabel: string;
+  secondaryButtonHref: string;
+  highlights: string[];
+}) {
   return (
     <section id="inicio" className="relative overflow-hidden pb-24 pt-40 sm:pt-48 lg:pb-32 lg:pt-56">
       <GlowBackground />
@@ -24,14 +39,16 @@ export function Hero() {
 
       <Container className="grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
         <div className="flex flex-col items-start gap-8">
-          <motion.span
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-violet-300/90"
-          >
-            Agência de Desenvolvimento Digital
-          </motion.span>
+          {badge && (
+            <motion.span
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-violet-300/90"
+            >
+              {badge}
+            </motion.span>
+          )}
 
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -39,10 +56,7 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.05 }}
             className="text-balance font-display text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl"
           >
-            Transformamos ideias em{" "}
-            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
-              experiências digitais.
-            </span>
+            <HighlightedTitle title={title} />
           </motion.h1>
 
           <motion.p
@@ -51,8 +65,7 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-pretty max-w-xl text-lg leading-relaxed text-zinc-400"
           >
-            Sites, sistemas e soluções digitais desenvolvidos para empresas que
-            querem crescer, vender mais e se destacar.
+            {subtitle}
           </motion.p>
 
           <motion.div
@@ -61,28 +74,33 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.15 }}
             className="flex flex-col gap-4 sm:flex-row"
           >
-            <ButtonLink href={buildWhatsAppLink()} target="_blank" rel="noopener noreferrer">
-              Quero meu projeto
+            <ButtonLink href={primaryButtonHref} target="_blank" rel="noopener noreferrer">
+              {primaryButtonLabel}
               <ArrowRight className="h-4 w-4" />
             </ButtonLink>
-            <ButtonLink href="#projetos" variant="secondary">
-              Ver projetos
+            <ButtonLink href={secondaryButtonHref} variant="secondary">
+              {secondaryButtonLabel}
             </ButtonLink>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2"
-          >
-            {indicators.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 text-sm text-zinc-400">
-                <Icon className="h-4 w-4 text-violet-400" />
-                {label}
-              </div>
-            ))}
-          </motion.div>
+          {highlights.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2"
+            >
+              {highlights.map((label, index) => {
+                const Icon = indicatorIcons[index % indicatorIcons.length];
+                return (
+                  <div key={label} className="flex items-center gap-2 text-sm text-zinc-400">
+                    <Icon className="h-4 w-4 text-violet-400" />
+                    {label}
+                  </div>
+                );
+              })}
+            </motion.div>
+          )}
         </div>
 
         <motion.div
@@ -91,10 +109,35 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.15 }}
           className="relative mx-auto hidden aspect-square w-full max-w-lg sm:block lg:max-w-none"
         >
-          <HeroComposition />
+          {imageUrl ? (
+            <div className="absolute left-1/2 top-1/2 h-[85%] w-[85%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_20px_80px_-20px_rgba(0,0,0,0.8)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+            </div>
+          ) : (
+            <HeroComposition />
+          )}
         </motion.div>
       </Container>
     </section>
+  );
+}
+
+function HighlightedTitle({ title }: { title: string }) {
+  const words = title.trim().split(" ");
+  if (words.length <= 2) return <>{title}</>;
+
+  const splitIndex = Math.max(1, words.length - 2);
+  const start = words.slice(0, splitIndex).join(" ");
+  const end = words.slice(splitIndex).join(" ");
+
+  return (
+    <>
+      {start}{" "}
+      <span className="bg-gradient-to-r from-violet-400 via-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
+        {end}
+      </span>
+    </>
   );
 }
 

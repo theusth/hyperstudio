@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum LeadStatus {
+  NOVO
+  EM_CONTATO
+  NEGOCIACAO
+  FECHADO
+  PERDIDO
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(EDITOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id               String         @id @default(cuid())
+  name             String
+  slug             String         @unique
+  category         String
+  shortDescription String
+  fullDescription  String
+  coverImage       String?
+  projectUrl       String?
+  technologies     String         @default("")
+  client           String?
+  projectDate      DateTime?
+  featured         Boolean        @default(false)
+  published        Boolean        @default(false)
+  order            Int            @default(0)
+  images           ProjectImage[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([published, order])
+}
+
+model ProjectImage {
+  id        String   @id @default(cuid())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([projectId, order])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String   @default("Sparkles")
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Technology {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String?
+  category  String
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  company   String?
+  photo     String?
+  content   String
+  rating    Int      @default(5)
+  published Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id          String     @id @default(cuid())
+  name        String
+  company     String?
+  whatsapp    String
+  email       String
+  projectType String
+  message     String
+  status      LeadStatus @default(NOVO)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model SiteSettings {
+  id             String   @id @default("settings")
+  companyName    String   @default("Hyper Studio")
+  logoUrl        String?
+  faviconUrl     String?
+  whatsapp       String   @default("5535984057883")
+  email          String?
+  instagram      String?
+  facebook       String?
+  linkedin       String?
+  address        String?
+  seoTitle       String?
+  seoDescription String?
+
+  heroBadge                String?
+  heroTitle                String?
+  heroSubtitle             String?
+  heroImageUrl             String?
+  heroPrimaryButtonLabel   String?
+  heroPrimaryButtonLink    String?
+  heroSecondaryButtonLabel String?
+  heroSecondaryButtonLink  String?
+  heroHighlight1           String?
+  heroHighlight2           String?
+  heroHighlight3           String?
+
+  updatedAt DateTime @updatedAt
+}

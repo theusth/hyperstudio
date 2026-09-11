@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
-import { buildWhatsAppLink, WHATSAPP_DISPLAY } from "@/lib/constants";
+import { createLeadAction } from "@/server/actions/leads";
 
 const projectTypes = [
   "Site institucional",
@@ -56,9 +56,9 @@ function validate(values: FormState): FormErrors {
   return errors;
 }
 
-function buildMessage(values: FormState) {
+function buildMessage(values: FormState, companyName: string) {
   const lines = [
-    "Olá! Vim pelo site da Hyper Studio e gostaria de solicitar um orçamento.",
+    `Olá! Vim pelo site da ${companyName} e gostaria de solicitar um orçamento.`,
     "",
     `Nome: ${values.nome}`,
   ];
@@ -73,17 +73,28 @@ function buildMessage(values: FormState) {
 const inputClasses =
   "w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-violet-400/50 focus:bg-white/[0.05]";
 
-export function Contact() {
+export function Contact({
+  whatsapp,
+  whatsappDisplay,
+  whatsappLink,
+  companyName,
+}: {
+  whatsapp: string;
+  whatsappDisplay: string;
+  whatsappLink: string;
+  companyName: string;
+}) {
   const [values, setValues] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const validationErrors = validate(values);
     setErrors(validationErrors);
@@ -92,7 +103,22 @@ export function Contact() {
       return;
     }
 
-    const link = buildWhatsAppLink(buildMessage(values));
+    setSubmitting(true);
+    try {
+      await createLeadAction({
+        name: values.nome,
+        company: values.empresa,
+        whatsapp: values.whatsapp,
+        email: values.email,
+        projectType: values.tipoProjeto,
+        message: values.mensagem,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+
+    const digits = whatsapp.replace(/\D/g, "");
+    const link = `https://wa.me/${digits}?text=${encodeURIComponent(buildMessage(values, companyName))}`;
     window.open(link, "_blank", "noopener,noreferrer");
     setSubmitted(true);
   }
@@ -109,7 +135,7 @@ export function Contact() {
           />
           <Reveal delay={0.15}>
             <a
-              href={buildWhatsAppLink()}
+              href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex w-fit items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-zinc-200 transition-colors hover:border-violet-400/30 hover:bg-white/[0.05]"
@@ -119,7 +145,7 @@ export function Contact() {
               </span>
               <span>
                 <span className="block font-semibold text-white">Fale pelo WhatsApp</span>
-                <span className="text-zinc-400">{WHATSAPP_DISPLAY}</span>
+                <span className="text-zinc-400">{whatsappDisplay}</span>
               </span>
             </a>
           </Reveal>
@@ -199,8 +225,8 @@ export function Contact() {
               />
             </Field>
 
-            <Button type="submit" className="mt-2 w-full sm:w-fit">
-              Enviar mensagem
+            <Button type="submit" disabled={submitting} className="mt-2 w-full sm:w-fit">
+              {submitting ? "Enviando..." : "Enviar mensagem"}
               <Send className="h-4 w-4" />
             </Button>
 

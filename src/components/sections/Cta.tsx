@@ -3,9 +3,8 @@ import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { GlowBackground } from "@/components/ui/GlowBackground";
-import { buildWhatsAppLink } from "@/lib/constants";
 
-export function Cta() {
+export function Cta({ whatsappLink, companyName }: { whatsappLink: string; companyName: string }) {
   return (
     <section className="relative py-24 sm:py-32">
       <Container>
@@ -16,12 +15,12 @@ export function Cta() {
               Seu próximo projeto começa aqui.
             </h2>
             <p className="text-pretty mx-auto mt-6 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-              Conte sua ideia para a Hyper Studio e descubra como podemos
+              Conte sua ideia para a {companyName} e descubra como podemos
               transformar ela em uma experiência digital profissional.
             </p>
             <div className="mt-10 flex justify-center">
-              <ButtonLink href={buildWhatsAppLink()} target="_blank" rel="noopener noreferrer">
-                Falar com a Hyper Studio
+              <ButtonLink href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                Falar com a {companyName}
                 <ArrowRight className="h-4 w-4" />
               </ButtonLink>
             </div>
