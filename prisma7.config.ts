@@ -10,6 +10,9 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Migrations precisam de uma conexão direta (não via pgbouncer/pooler).
+    // Na Vercel, defina DIRECT_URL com a connection string "Direct connection"
+    // do Supabase; localmente, DATABASE_URL sozinha já funciona.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });
